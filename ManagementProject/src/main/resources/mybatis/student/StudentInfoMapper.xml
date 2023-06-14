@@ -2,8 +2,94 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.yizhi.student.dao.StudentInfoDao">
-	
-	
 
+    <sql id="insertFields">
+        id,student_id,exam_id,class_id,student_name,certify,mail_address,foreign_lanaguage,student_sex,nation,political,card_id,telephone,subject_type,tocollege,tocampus,tomajor,birthplace,grade,isstate,birthday,note,add_time,add_userid,edit_time,edit_userid
+    </sql>
+
+    <!--List<StudentInfoDO> list(Map<String,Object> map);-->
+    <select id="list" resultType="com.yizhi.student.domain.StudentInfoDO">
+        select <include refid="insertFields"></include>
+        from s_student_info
+        <where>
+            <if test="name!=null and name!=''">
+                and student_name like CONCAT('%', #{name}, '%')
+            </if>
+            <if test="tocollegeId!=null and tocollegeId!=''">
+                and tocollege = #{tocollegeId}
+            </if>
+            <if test="tomajorId!=null and tomajorId!=''">
+                and tomajor = #{tomajorId}
+            </if>
+            <if test="classId!=null and classId!=''">
+                and class_id = #{classId}
+            </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!--int count(Map<String,Object> map);-->
+    <select id="count" resultType="int">
+        select count(*)
+        from s_student_info
+        <where>
+            <if test="studentName!=null and studentName!=''">
+                and student_name like CONCAT('%', #{name}, '%')
+            </if>
+            <if test="tocollege!=null and tocollege!=''">
+                and tocollege = #{tocollege}
+            </if>
+            <if test="tomajor!=null and tomajor!=''">
+                and tomajor = #{tomajor}
+            </if>
+            <if test="classId!=null and classId!=''">
+                and class_id = #{classId}
+            </if>
+        </where>
+    </select>
+
+    <!--StudentInfoDO get(Integer id);-->
+    <select id="get" resultType="com.yizhi.student.domain.StudentInfoDO">
+        select <include refid="insertFields"></include>
+        from s_student_info
+        where id = #{id}
+    </select>
+
+    <!--int update(StudentInfoDO studentInfo);-->
+    <update id="update" >
+        update s_student_info
+        set exam_id=#{examId},class_id=#{classId},student_name=#{studentName},certify=#{certify},mail_address=#{mailAddress},foreign_lanaguage=#{foreignLanaguage},student_sex=#{studentSex},nation=#{nation},political=#{political},card_id=#{cardId},telephone=#{telephone},subject_type=#{subjectType},tocollege=#{tocollege},tocampus=#{tocampus},tomajor=#{tomajor},birthplace=#{birthplace},grade=#{grade},isstate=#{isstate},birthday=#{birthday},note=#{note},add_time=#{addTime},add_userid=#{addUserid},edit_time=#{editTime},edit_userid=#{editUserid}
+        where id = #{id}
+    </update>
+	
+	<!--int save(StudentInfoDO studentInfo)-->
+    <insert id="save" >
+        insert into s_student_info(student_id,exam_id,class_id,student_name,certify,mail_address,foreign_lanaguage,student_sex,nation,political,card_id,telephone,subject_type,tocollege,tocampus,tomajor,birthplace,grade,isstate,birthday,note,add_time,add_userid,edit_time,edit_userid)
+        values (#{studentId},#{examId},#{classId},#{studentName},#{certify},#{mailAddress},#{foreignLanaguage},#{studentSex},#{nation},#{political},#{cardId},#{telephone},#{subjectType},#{tocollege},#{tocampus},#{tomajor},#{birthplace},#{grade},#{isstate},#{birthday},#{note},#{addTime},#{addUserid},#{editTime},#{editUserid})
+    </insert>
+
+    <!--int remove(Integer id);-->
+    <update id="remove">
+        delete from s_student_info
+        where id = #{id}
+    </update>
+
+    <!--int batchRemove(Integer[] ids);-->
+    <update id="batchRemove">
+        delete from s_student_info where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
 
 </mapper>

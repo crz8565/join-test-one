@@ -1,21 +1,13 @@
 package com.yizhi.student.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yizhi.common.annotation.Log;
-import com.yizhi.common.controller.BaseController;
 import com.yizhi.common.utils.*;
-import com.yizhi.student.domain.ClassDO;
-import com.yizhi.student.service.ClassService;
-import com.yizhi.student.service.CollegeService;
-import com.yizhi.student.service.MajorService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.yizhi.student.domain.MajorDO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -33,7 +25,7 @@ import com.yizhi.student.service.StudentInfoService;
 @RequestMapping("/student/studentInfo")
 public class StudentInfoController {
 
-	
+
 
 
 	@Autowired
@@ -43,9 +35,15 @@ public class StudentInfoController {
 	@ResponseBody
 	@PostMapping("/save")
 	@RequiresPermissions("student:studentInfo:add")
-	public R save(StudentInfoDO studentInfoDO){
-	
-		return null;
+	public Object save(StudentInfoDO studentInfoDO){
+		Map map = new HashMap<>();
+		studentInfoDO.setAddTime(new Date());
+		if (studentInfoService.save(studentInfoDO)>0){
+			map.put("code",0);
+		}else {
+			map.put("msg","服务器异常");
+		}
+		return map;
 	}
 
 	/**
@@ -55,9 +53,16 @@ public class StudentInfoController {
 	@GetMapping("/list")
 	@RequiresPermissions("student:studentInfo:studentInfo")
 	public PageUtils list(@RequestParam Map<String, Object> params){
-
-		return null;
-
+		//查询列表数据
+		if (params.get("sort")!=null) {
+			params.put("sort",BeanHump.camelToUnderline(params.get("sort").toString()));
+		}
+		//查询列表数据
+		Query query = new Query(params);
+		List<StudentInfoDO> majorList = studentInfoService.list(query);
+		int total = studentInfoService.count(query);
+		PageUtils pageUtils = new PageUtils(majorList, total,query.getCurrPage(),query.getPageSize());
+		return pageUtils;
 	}
 
 
@@ -68,9 +73,16 @@ public class StudentInfoController {
 	@ResponseBody
 	@PostMapping("/update")
 	@RequiresPermissions("student:studentInfo:edit")
-	public R update(StudentInfoDO studentInfo){
-
-		return null;
+	public Object update(StudentInfoDO studentInfo){
+		Map map = new HashMap<>();
+		studentInfo.setEditTime(new Date());
+		int flag = studentInfoService.update(studentInfo);
+		if (flag > 0){
+			map.put("code",0);
+		}else {
+			map.put("msg","服务器异常");
+		}
+		return map;
 	}
 
 	/**
@@ -80,8 +92,16 @@ public class StudentInfoController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("student:studentInfo:remove")
-	public R remove( Integer id){
-		return null;
+	public Object remove( Integer id){
+		Map map = new HashMap<>();
+		int flag = studentInfoService.remove(id);
+		if (flag > 0){
+			map.put("code",0);
+			map.put("msg","操作成功");
+		}else {
+			map.put("msg","服务器异常");
+		}
+		return map;
 	}
 	
 	/**
@@ -91,9 +111,16 @@ public class StudentInfoController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("student:studentInfo:batchRemove")
-	public R remove(@RequestParam("ids[]") Integer[] ids){
-
-		return null;
+	public Object remove(@RequestParam("ids[]") Integer[] ids){
+		Map map = new HashMap<>();
+		int flag = studentInfoService.batchRemove(ids);
+		if (flag > 0){
+			map.put("code",0);
+			map.put("msg","操作成功");
+		}else {
+			map.put("msg","服务器异常");
+		}
+		return map;
 	}
 
 
